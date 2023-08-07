@@ -2,11 +2,12 @@ import os
 import time
 import multiprocessing
 import psutil
+import argparse
 
 # This function will be run in each process
-def stress_cpu():
-    # The end time is 60 seconds from the start
-    end_time = time.time() + 60
+def stress_cpu(duration):
+    # The end time is duration seconds from the start
+    end_time = time.time() + duration
 
     # Continuously perform a math operation until the end time
     while time.time() < end_time:
@@ -16,8 +17,14 @@ def stress_cpu():
             x = x**x
             x += 1
 
-
 if __name__ == "__main__":
+    # Create argument parser
+    parser = argparse.ArgumentParser(description="Run a CPU stress test")
+    # Add duration argument
+    parser.add_argument("-d", "--duration", type=int, default=60, help="Duration of the stress test in seconds")
+    # Parse arguments
+    args = parser.parse_args()
+
     # Get the number of CPUs available
     num_cpus = os.cpu_count()
 
@@ -32,7 +39,7 @@ if __name__ == "__main__":
     # We start as many processes as there are CPUs
     for i in range(num_cpus):
         # Each process will run the stress_cpu function
-        p = multiprocessing.Process(target=stress_cpu)
+        p = multiprocessing.Process(target=stress_cpu, args=(args.duration,))
         p.start()
         processes.append(p)
 
